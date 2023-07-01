@@ -11,7 +11,6 @@ public partial class LaundryOrder : BaseEntity
     public Guid? CustomerId { get; set; } = null;
     public Guid? StoreId { get; set; } = null;
     public Guid? BuildingId { get; set; } = null;
-    public Guid? OrderInBatchId { get; set; } = null;
     [AllowNull]
     public string? Note { get; set; } = null;
     public virtual Customer? Customer { get; set; }

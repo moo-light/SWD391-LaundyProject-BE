@@ -1,8 +1,8 @@
-﻿using Application.Interfaces;
+﻿using Application.ViewModels.FilterModels;
+using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Utils;
 using Application.ViewModels;
-using Application.ViewModels.FilterModels;
 using Domain.Entities;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -11,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructures.Repositories
 {
@@ -32,8 +33,8 @@ namespace Infrastructures.Repositories
             Expression<Func<Payment, bool>> date = x => x.CreationDate.IsInDateTime(entity);
 
             var predicates = ExpressionUtils.CreateListOfExpression(status, paymentMethod, amount, status,date);
-
-            result = predicates.Aggregate(_dbSet.AsEnumerable(), (a, b) => a.Where(b.Compile()));
+            var seed = Includes(_dbSet.AsNoTracking(), x => x.Order);
+            result = predicates.Aggregate(seed.AsEnumerable(), (a, b) => a.Where(b.Compile()));
 
             return result;
         }

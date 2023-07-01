@@ -1,17 +1,20 @@
-﻿using Application.ViewModels;
+﻿using Application.Commons;
 using Application.ViewModels.FilterModels;
+using Application.ViewModels;
+using Application.ViewModels.Stores;
 using Domain.Entities;
 
 namespace Application.Interfaces.Services
 {
     public interface IServiceService
     {
-        Task<bool> AddAsync(Service service);
-        Task<IEnumerable<Service>> GetAllAsync();
         Task<Service?> GetByIdAsync(Guid entityId);
         Task<int> GetCountAsync();
-        Task<IEnumerable<Service>> GetFilterAsync(ServiceFilteringModel entity);
-        bool Remove(Guid entityId);
-        bool Update(Service entity);
+        Task<Pagination<Service>> GetCustomerListPagi(int pageIndex, int pageSize);
+        Task<Pagination<ServiceResponseDTO>> GetAllAsync(int pageIndex, int pageSize);
+        Task<Pagination<ServiceResponseDTO>> GetFilterAsync(ServiceFilteringModel entity, int pageIndex, int pageSize);
+        Task<bool> UpdateAsync(Guid id, ServiceRequestDTO serviceRequest);
+        Task<bool> RemoveAsync(Guid entityId);
+        Task<bool> AddAsync(ServiceRequestDTO serviceRequest);
     }
 }

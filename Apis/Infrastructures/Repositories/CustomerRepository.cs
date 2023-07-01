@@ -1,9 +1,9 @@
 ﻿using Application.Commons;
+using Application.ViewModels.FilterModels;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Utils;
 using Application.ViewModels;
-using Application.ViewModels.FilterModels;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,9 +19,12 @@ namespace Infrastructures.Repositories
     public class CustomerRepository : GenericRepository<Customer>, ICustomerRepository
     {
         private readonly AppDbContext _appDbContext;
+        
+
         public CustomerRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService) : base(context, timeService, claimsService)
         {
             _appDbContext = context;
+            
         }
 
         public async Task<Customer> GetCustomerByEmailAndPassword(string email, string password)
@@ -37,10 +40,10 @@ namespace Infrastructures.Repositories
             Expression<Func<Customer, bool>> phoneNumber = x => entity.PhoneNumber.IsNullOrEmpty() || entity.PhoneNumber.Any(y => x.PhoneNumber != null && x.PhoneNumber.Contains(y));
             Expression<Func<Customer, bool>> fullName = x => entity.FullName.IsNullOrEmpty() || entity.FullName.Any(y =>x.FullName!=null&&  x.FullName.Contains(y));
             Expression<Func<Customer, bool>> date = x => x.CreationDate.IsInDateTime(entity);
-
             var predicates = ExpressionUtils.CreateListOfExpression(address, email, phoneNumber, fullName,date);
-
-            IEnumerable<Customer> result = predicates.Aggregate(_dbSet.AsEnumerable(), (a, b) => a.Where(b.Compile()));
+            
+            IQueryable<Customer> seed = Includes(_dbSet.AsNoTracking(), x => x.Feedbacks, x => x.Orders);
+            IEnumerable<Customer> result = predicates.Aggregate(seed.AsEnumerable(), (a, b) => a.Where(b.Compile()));
 
             return result;
         }

@@ -1,4 +1,6 @@
-﻿using Application.ViewModels.FilterModels;
+﻿using Application.Commons;
+using Application.ViewModels.FilterModels;
+using Application.ViewModels.Stores;
 using Domain.Entities;
 using System.Formats.Tar;
 
@@ -6,12 +8,13 @@ namespace Application.Interfaces.Services
 {
     public interface IStoreService
     {
-        Task<bool> AddAsync(Store store);
-        Task<IEnumerable<Store>> GetAllAsync();
+        Task<bool> AddAsync(StoreRequestDTO store);
+        Task<Pagination<StoreResponseDTO>> GetAllAsync(int pageIndex,int PageSize);
         Task<Store?> GetByIdAsync(Guid entityId);
         Task<int> GetCountAsync();
-        Task<IEnumerable<Store>> GetFilterAsync(StoreFilteringModel entity);
-        bool Remove(Guid entityId);
-        bool Update(Store entity);
+        Task<Pagination<StoreResponseDTO>> GetFilterAsync(StoreFilteringModel entity, int pageIndex, int pageSize);
+        Task<Pagination<Store>> GetCustomerListPagi(int pageIndex, int pageSize);
+        Task<bool> RemoveAsync(Guid entityId);
+        Task<bool> UpdateAsync(Guid id, StoreRequestDTO entity);
     }
 }

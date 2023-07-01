@@ -12,6 +12,11 @@ namespace WebAPI.Middlewares
         }
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
+            if (context.Request.Path.Value.StartsWith("/dashboard"))
+            {
+                await next(context);
+                return;
+            }
             stopwatch.Restart();
             stopwatch.Start();
             Console.WriteLine("start performance recored");

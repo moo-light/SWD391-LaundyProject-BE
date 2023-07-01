@@ -86,7 +86,7 @@ namespace Infrastructures
             return _dbContext.SaveChanges();
         }
 
-        public async Task<int> SaveChangeAsync()
+        public async Task<int> SaveChangesAsync()
         {
             return await _dbContext.SaveChangesAsync();
         }

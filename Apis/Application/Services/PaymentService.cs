@@ -1,7 +1,10 @@
-﻿using Application.Interfaces;
+﻿using Application.Commons;
+using Application.ViewModels.FilterModels;
+using Application.Interfaces;
 using Application.Interfaces.Services;
 using Application.ViewModels;
-using Application.ViewModels.FilterModels;
+using Application.ViewModels.Payments;
+using AutoMapper;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -14,42 +17,65 @@ namespace Application.Services
     public class PaymentService : IPaymentService
     {
         public readonly IUnitOfWork _unitOfWork;
-        public PaymentService(IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+
+        public PaymentService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public async Task<bool> AddAsync(Payment entity)
+        public async Task<bool> AddAsync(PaymentRequestDTO paymentRequest)
         {
-            await _unitOfWork.PaymentRepository.AddAsync(entity);
-            return await _unitOfWork.SaveChangeAsync() > 0;
+            Payment newPayment = _mapper.Map<Payment>(paymentRequest);
+            await _unitOfWork.PaymentRepository.AddAsync(newPayment);
+            return await _unitOfWork.SaveChangesAsync() > 0;
         }
 
-        public async Task<IEnumerable<Payment>> GetAllAsync() => await _unitOfWork.PaymentRepository.GetAllAsync();
 
-        public async Task<Payment?> GetByIdAsync(Guid entityId) => await _unitOfWork.PaymentRepository.GetByIdAsync(entityId);
+        public async Task<Payment?> GetByIdAsync(Guid entityId)
+        {
+            Payment? payment = await _unitOfWork.PaymentRepository.GetByIdAsync(entityId,x=>x.Order);
+            return payment;
+        }
 
         public async Task<int> GetCountAsync()
         {
             return await _unitOfWork.PaymentRepository.GetCountAsync();
         }
 
-        public async Task<IEnumerable<Payment>> GetFilterAsync(PaymentFilteringModel entity)
+        public Task<Pagination<Payment>> GetCustomerListPagi(int pageIndex, int pageSize)
         {
-            return  _unitOfWork.PaymentRepository.GetFilter(entity);
-
+            throw new NotImplementedException();
         }
 
-        public bool Remove(Guid entityId)
+        public async Task<Pagination<PaymentResponseDTO>> GetAllAsync(int pageIndex, int pageSize)
         {
-            _unitOfWork.PaymentRepository.SoftRemoveByID(entityId);
-            return _unitOfWork.SaveChange() > 0;
+            var payments = await _unitOfWork.PaymentRepository.ToPagination(pageIndex, pageSize,x=>x.Order);
+            return _mapper.Map<Pagination<PaymentResponseDTO>>(payments);
         }
 
-        public bool Update(Payment entity)
+        public async Task<Pagination<PaymentResponseDTO>> GetFilterAsync(PaymentFilteringModel entity, int pageIndex, int pageSize)
         {
-            _unitOfWork.PaymentRepository.Update(entity);
-            return _unitOfWork.SaveChange() > 0;
+            IEnumerable<Payment> payments = _unitOfWork.PaymentRepository.GetFilter(entity);
+            var pagination = _unitOfWork.PaymentRepository.ToPagination(payments, pageIndex, pageSize);
+            return _mapper.Map<Pagination<PaymentResponseDTO>>(pagination);
         }
+
+        public async Task<bool> RemoveAsync(Guid entityId)
+        {
+            var result = _unitOfWork.PaymentRepository.SoftRemoveByID(entityId);
+            if (result == false) return false;
+            return await _unitOfWork.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdateAsync(Guid id, PaymentRequestDTO paymentRequest)
+        {
+            var payment = await _unitOfWork.PaymentRepository.GetByIdAsync(id);
+           payment= _mapper.Map(paymentRequest, payment);
+            _unitOfWork.PaymentRepository.Update(payment);
+            return await _unitOfWork.SaveChangesAsync() > 0;
+        }
+
     }
 }

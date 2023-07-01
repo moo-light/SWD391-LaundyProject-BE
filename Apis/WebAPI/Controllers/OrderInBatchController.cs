@@ -8,7 +8,10 @@ using Application.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
 using Domain.Enums;
+using Microsoft.IdentityModel.Tokens;
 using Application.ViewModels.FilterModels;
+using Application.ViewModels.OrderInBatch;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace WebAPI.Controllers
 {
@@ -21,43 +24,36 @@ namespace WebAPI.Controllers
             _orderInBatchService = orderInBatchService;
         }
 
-    
+
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Add(OrderInBatch entity)
+        public async Task<IActionResult> AddAsync(OrderInBatchRequestDTO entity)
         {
             var result = await _orderInBatchService.AddAsync(entity);
-            return result ? Ok() : BadRequest();
+            return result ? StatusCode(201) : BadRequest();
         }
+
         [HttpPut]
-        [Authorize(Roles = "Admin")]//bao cho admin neu admin approve thi doi
-        //cai gi kho de frontend lo
-        public IActionResult Update(OrderInBatch entity)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateAsync(Guid id, OrderInBatchRequestDTO entity)
         {
-            var result = _orderInBatchService.Update(entity);
-            return result ? Ok() : BadRequest();
+            var result = await _orderInBatchService.UpdateAsync(id, entity);
+            return result ? Ok() : NotFound();
         }
-        [HttpGet("{id:guid}")]
+
+        [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Driver,Admin")]
+        public async Task<IActionResult> DeleteAsync(Guid entityId)
+        {
+            var result = await _orderInBatchService.RemoveAsync(entityId);
+            return result ? Ok() : NoContent();
+        }
+        [HttpGet]
         [Authorize(Roles = "Driver,Admin")]
         public async Task<IActionResult> GetByIDAsync(Guid entityId)
         {
             var result = await _orderInBatchService.GetByIdAsync(entityId);
             return result != null ? Ok(result) : BadRequest(result);
-        }
-
-        [HttpDelete("{id:guid}")]
-        [Authorize(Roles = "Driver,Admin")]
-        public IActionResult DeleteById(Guid entityId)
-        {
-            var result = _orderInBatchService.Remove(entityId);
-            return result ? Ok() : BadRequest();
-        }
-        [HttpGet]
-        [Authorize(Roles = "Driver,Admin")]
-        public async Task<IActionResult> GetAllAsync()
-        {
-            var result = await _orderInBatchService.GetAllAsync();
-            return result.Count() > 0 ? Ok(result) : BadRequest(result);
         }
         [HttpGet]
         [Authorize(Roles = "Admin")]
@@ -67,27 +63,23 @@ namespace WebAPI.Controllers
             return result > 0 ? Ok(result) : BadRequest();
         }
 
-        [HttpPost]
+        [HttpGet("{pageIndex?}/{pageSize?}")]
         [Authorize(Roles = "Driver,Admin")]
-
-        //1. status = RequestChange
-
-        public async Task<IActionResult> GetListWithFilter(OrderInBatchFilteringModel? entity)
+        public async Task<IActionResult> GetAllAsync(int pageIndex = 0, int pageSize = 10)
         {
-            var result = await _orderInBatchService.GetFilterAsync(entity);
-            return result != null ? Ok(result) : BadRequest();
+            var result = await _orderInBatchService.GetAllAsync(pageIndex, pageSize);
+            return result.Items.IsNullOrEmpty() ? NotFound() : Ok(result);
         }
-        [HttpPut("{orderInBatchId:guid}")]
+
+        [HttpPost("{pageIndex?}/{pageSize?}")]
         [Authorize(Roles = "Driver,Admin")]
-        public async Task<IActionResult> RequestUpdateOrderInBatch(Guid orderInBatchId)
+        public async Task<IActionResult> GetListWithFilter(OrderInBatchFilteringModel? entity,
+                                                            int pageIndex = 0,
+                                                            int pageSize = 10)
         {
-            var orderInBatch = await _orderInBatchService.GetByIdAsync(orderInBatchId);
-
-            if (orderInBatch == null) throw new InvalidDataException("Id not Found");
-            
-            orderInBatch.Status = nameof(OrderInBatchStatus.RequestChange);
-            var result = _orderInBatchService.Update(orderInBatch);
-            return result ? Ok(result):BadRequest();
+            var result = await _orderInBatchService.GetFilterAsync(entity, pageIndex, pageSize);
+            return result.Items.IsNullOrEmpty() ? NotFound() : Ok(result);
         }
+       
     }
 }

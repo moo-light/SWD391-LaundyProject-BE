@@ -19,6 +19,6 @@ namespace Application.Interfaces
         public IOrderInBatchRepository OrderInBatchRepository { get; }
 
         public int SaveChange();
-        public Task<int> SaveChangeAsync();
+        public Task<int> SaveChangesAsync();
     }
 }

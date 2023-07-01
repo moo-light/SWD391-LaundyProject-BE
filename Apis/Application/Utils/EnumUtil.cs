@@ -9,5 +9,5 @@ namespace Application.Utils;
 
 public static class EnumUtil
 {
-    
+   
 }

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.CustomValidations;
+using Domain.Enums;
 
 namespace Application.ViewModels.FilterModels
 {
@@ -13,5 +8,7 @@ namespace Application.ViewModels.FilterModels
         public Guid?[]? OrderId { get; set; }
         public Guid?[]? ServiceId { get; set; }
         public string?[]? Weight { get; set; }
+        [EnumValidation(typeof(OrderDetailStatus))]
+        public string? Status { get; set; }
     }
 }

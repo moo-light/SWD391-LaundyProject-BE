@@ -1,14 +1,15 @@
-﻿using Application.Interfaces;
+﻿using Application.ViewModels.FilterModels;
+using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Utils;
 using Application.ViewModels;
-using Application.ViewModels.FilterModels;
 using Domain.Entities;
 using Infrastructures;
 using Infrastructures.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Interfaces.Repositories;
 
@@ -36,14 +37,15 @@ public class OrderInBatchRepository : GenericRepository<OrderInBatch>, IOrderInB
         Expression<Func<OrderInBatch, bool>> date = x => x.CreationDate.IsInDateTime(entity);
 
         var predicates = ExpressionUtils.CreateListOfExpression(batchId,orderId,status,date);
+        var seed = Includes(_dbSet.AsNoTracking(), x => x.Order, x => x.Batch);
 
-        var query = _dbSet.AsEnumerable();
+        var query = seed.AsEnumerable();
         foreach (var predicate in predicates)
         {
             query = query.Where(predicate.Compile());
         }
 
-        return query.AsEnumerable();
+        return query;
 
     }
 

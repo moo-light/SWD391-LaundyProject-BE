@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;
 
-[Route("api/[controller]/[action]")]
+[Route("api/v1/[controller]/[action]")]
 [ApiController]
 public class BaseController : ControllerBase
 {

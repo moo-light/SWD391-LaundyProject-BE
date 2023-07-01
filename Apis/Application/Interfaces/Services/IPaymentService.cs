@@ -1,5 +1,7 @@
-﻿using Application.ViewModels;
+﻿using Application.Commons;
 using Application.ViewModels.FilterModels;
+using Application.ViewModels;
+using Application.ViewModels.Payments;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,12 +13,13 @@ namespace Application.Interfaces.Services
 {
     public interface IPaymentService
     {
-        Task<bool> AddAsync(Payment entity);
-        Task<IEnumerable<Payment>> GetAllAsync();
         Task<Payment?> GetByIdAsync(Guid entityId);
         Task<int> GetCountAsync();
-        Task<IEnumerable<Payment>> GetFilterAsync(PaymentFilteringModel entity);
-        bool Remove(Guid entityId);
-        bool Update(Payment entity);
+        Task<Pagination<Payment>> GetCustomerListPagi(int pageIndex, int pageSize);
+        Task<Pagination<PaymentResponseDTO>> GetAllAsync(int pageIndex, int pageSize);
+        Task<Pagination<PaymentResponseDTO>> GetFilterAsync(PaymentFilteringModel entity, int pageIndex, int pageSize);
+        Task<bool> RemoveAsync(Guid entityId);
+        Task<bool> UpdateAsync(Guid id, PaymentRequestDTO paymentRequest);
+        Task<bool> AddAsync(PaymentRequestDTO paymentRequest);
     }
 }

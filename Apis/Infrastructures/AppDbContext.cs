@@ -27,6 +27,7 @@ namespace Infrastructures
         public DbSet<OrderInBatch> OrderInBatches { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Service> Services { get; set; }
+        public DbSet<BatchOfBuilding> BatchOfBuildings { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Store> Stores { get; set; }
 

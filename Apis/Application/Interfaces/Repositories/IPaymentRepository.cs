@@ -1,5 +1,5 @@
-﻿using Application.ViewModels;
-using Application.ViewModels.FilterModels;
+﻿using Application.ViewModels.FilterModels;
+using Application.ViewModels;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;

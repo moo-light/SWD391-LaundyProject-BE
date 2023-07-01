@@ -10,7 +10,6 @@ namespace Application.ViewModels.FilterModels
     public class BatchFilteringModel :BaseFilterringModel
     {
         public Guid?[]? DriverId { get; set; } 
-        public Guid?[]? SessionId { get; set; }
         public string? Type { get; set; }
         public string? Status { get; set; }
     }

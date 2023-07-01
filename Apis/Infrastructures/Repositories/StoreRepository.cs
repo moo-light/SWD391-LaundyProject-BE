@@ -1,10 +1,11 @@
-﻿using Application.Interfaces;
+﻿using Application.ViewModels.FilterModels;
+using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Utils;
 using Application.ViewModels;
-using Application.ViewModels.FilterModels;
 using Domain.Entities;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructures.Repositories
 {
@@ -30,6 +31,7 @@ namespace Infrastructures.Repositories
             Expression<Func<Store, bool>> date = x => x.CreationDate.IsInDateTime(entity);
 
             var predicates = ExpressionUtils.CreateListOfExpression(address, name,date);
+            var seed = Includes(_dbSet.AsNoTracking(), x => x.Feedbacks, x => x.Services,x=>x.Orders);
 
             var result = predicates.Aggregate(_dbSet.AsEnumerable(), (a, b) => a.Where(b.Compile()));
 

@@ -4,5 +4,6 @@
     {
         public Guid UserId { get; internal set; }
         public string JWT { get; internal set; }
+        public string RefreshToken { get; internal set; }
     }
 }

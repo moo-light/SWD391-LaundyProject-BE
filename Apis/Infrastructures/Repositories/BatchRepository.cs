@@ -1,8 +1,8 @@
-﻿using Application.Interfaces;
+﻿using Application.ViewModels.FilterModels;
+using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Utils;
 using Application.ViewModels;
-using Application.ViewModels.FilterModels;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructures.Repositories
 {
@@ -25,14 +26,14 @@ namespace Infrastructures.Repositories
         {
             entity ??= new();
             Expression<Func<Batch, bool>> driverId = x => entity.DriverId.EmptyOrEquals(x.DriverId);
-            Expression<Func<Batch, bool>> sessionId = x => entity.SessionId.EmptyOrEquals(x.SessionId);
             Expression<Func<Batch, bool>> type = x => entity.Type.EmptyOrContainedIn(x.Type);
             Expression<Func<Batch, bool>> status = x => entity.Status.EmptyOrContainedIn(x.Status);
             Expression<Func<Batch, bool>> dateFilter = x => x.CreationDate.IsInDateTime(entity.FromDate, entity.ToDate);
 
-            var predicates = ExpressionUtils.CreateListOfExpression(driverId, sessionId, status, type, dateFilter);
+            var predicates = ExpressionUtils.CreateListOfExpression(driverId, status, type, dateFilter);
 
-            var result = predicates.Aggregate(_dbSet.AsEnumerable(), (a, b) => a.Where(b.Compile()));
+            var seed = _dbSet.Include(x=>x.Driver).Include(x=>x.BatchOfBuildings).Include(x=>x.OrderInBatches).Include(x=>x.Driver).AsNoTracking();
+            var result = predicates.Aggregate(seed.AsEnumerable(), (a, b) => a.Where(b.Compile()));
 
             return result;  
         }

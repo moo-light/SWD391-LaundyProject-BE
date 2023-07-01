@@ -16,5 +16,5 @@ public interface IBaseUserRepository:IGenericRepository<BaseUser>
     Task<BaseUser?> GetUserByEmailAndPasswordHash(string email, string password);
 
     Task<bool> CheckEmailExisted(string username);
-    IEnumerable<BaseUser> GetFilter(DriverFilteringModel? entity);
+    IEnumerable<BaseUser> GetFilter(UserFilteringModel? entity);
 }

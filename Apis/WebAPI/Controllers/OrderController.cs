@@ -8,6 +8,8 @@ using Application.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
 using Application.ViewModels.FilterModels;
+using Microsoft.IdentityModel.Tokens;
+using Application.ViewModels.LaundryOrders;
 
 namespace WebAPI.Controllers
 {
@@ -16,65 +18,75 @@ namespace WebAPI.Controllers
         private readonly IOrderService _orderService;
         private readonly IClaimsService _claimsService;
 
-        public OrderController(IOrderService orderService,IClaimsService claimsService)
+        public OrderController(IOrderService orderService, IClaimsService claimsService)
         {
             _orderService = orderService;
-           _claimsService = claimsService;
+            _claimsService = claimsService;
         }
 
-    
+
         [HttpPost]
         [Authorize(Roles = "Customer,Admin")]
-        public async Task<IActionResult> Add(LaundryOrder entity)
+        public async Task<IActionResult> AddAsync(LaundryOrderRequestAddDTO entity)
         {
+
             var result = await _orderService.AddAsync(entity);
-            return result ? Ok() : BadRequest();
+            return result ? Ok(new
+            {
+                message = "Add Successfully"
+            }) : BadRequest();
         }
-        [HttpPut]
+        [HttpPut("{id:guid}")]
 
         [Authorize(Roles = "Admin")]
         //Customer co the Update voi dieu kien la Chua duoc bo vao Batch
-        public IActionResult Update(LaundryOrder entity)
+        public async Task<IActionResult> UpdateAsync(Guid id,LaundryOrderRequestDTO entity)
         {
-            var result = _orderService.Update(entity);
-            return result ? Ok() : BadRequest();
+            var result = await _orderService.UpdateAsync(id,entity);
+            return result ? Ok(new
+            {
+                message = "Update Successfully"
+            }) : BadRequest();
         }
         [HttpGet("{entityId:guid}")]
         [Authorize(Roles = "Customer,Admin")]
         public async Task<IActionResult> GetByIDAsync(Guid entityId)
         {
             var result = await _orderService.GetByIdAsync(entityId);
-            return result != null ? Ok(result) : BadRequest(result);
+            return result != null ? Ok(result) : NotFound();
         }
 
         [HttpDelete("{entityId:guid}")]
         [Authorize]
-        public IActionResult DeleteById(Guid entityId)
+        public async Task<IActionResult> DeleteAsync(Guid entityId)
         {
-            var result = _orderService.Remove(entityId);
-            return result ? Ok() : BadRequest();
+            var result = await _orderService.RemoveAsync(entityId);
+            return result ? Ok(new
+            {
+                message = "Delete Successfully"
+            }) : NoContent();
         }
-        [HttpGet]
+        [HttpGet("{pageIndex?}/{pageSize?}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync(int pageIndex = 0, int pageSize = 10)
         {
-            var result = await _orderService.GetAllAsync();
-            return result.Count() > 0 ? Ok(result) : BadRequest(result);
+            var result = await _orderService.GetAllAsync(pageIndex, pageSize);
+            return result.Items.IsNullOrEmpty() ? NotFound() : Ok(result);
         }
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetCount()
         {
             var result = await _orderService.GetCountAsync();
-            return result > 0 ? Ok(result) : BadRequest();
+            return result > 0 ? Ok(result) : NotFound();
         }
 
-        [HttpPost]
+        [HttpPost("{pageIndex?}/{pageSize?}")]
         [Authorize]
-        public async Task<IActionResult> GetListWithFilter(LaundryOrderFilteringModel? entity)
+        public async Task<IActionResult> GetListWithFilter(LaundryOrderFilteringModel? entity, int pageIndex = 0, int pageSize = 10)
         {
-            var result = await _orderService.GetFilterAsync(entity);
-            return result != null ? Ok(result) : BadRequest();
+            var result = await _orderService.GetFilterAsync(entity, pageIndex, pageSize);
+                return result.Items.IsNullOrEmpty() ? NotFound() : Ok(result);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Application.ViewModels;
+﻿using Application.ViewModels.FilterModels;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.IdentityModel.Tokens;
@@ -26,7 +26,7 @@ namespace Application.Utils
 
             if (thatId == null) return false;
             
-            return thisId.Equals(thatId);
+            return thisId.Equals(thatId );
         }
         /// <summary>
         /// check if any of the list is equal thatId
@@ -44,14 +44,14 @@ namespace Application.Utils
         {
             if (@this == null || @this == string.Empty) return true;
             if (that == null) return false;
-            if (that.Contains(@this)) return true;
+            if (that.Contains(@this,StringComparison.OrdinalIgnoreCase)) return true;
             return false;
         }
         public static bool EmptyOrContainedIn(this string?[]? @this, string? that)
         {
 
             if (@this == null) return true;
-            return @this.Any(x=>!string.IsNullOrWhiteSpace(x) && x.EmptyOrContainedIn(that));
+            return @this.Any(x=>!x.IsNullOrEmpty() && x.EmptyOrContainedIn(that));
         }
         public static bool IsInDateTime(this DateTime? dateTime, DateTime? fromDate = default, DateTime? toDate = default)
         {

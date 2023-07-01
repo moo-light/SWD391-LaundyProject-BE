@@ -17,4 +17,6 @@ public partial class BaseUser : BaseEntity
     public string? PhoneNumber { get; set; }
     [NotMapped]
     public bool? IsAdmin { get; set; }
+    public string? RefreshToken { get; set; }
+    public DateTime? ExpireTokenTime { get; set; }
 }

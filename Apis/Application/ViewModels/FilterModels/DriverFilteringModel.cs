@@ -1,15 +1,18 @@
-﻿using System;
+﻿using Domain.CustomValidations;
+using Domain.Enums;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Application.ViewModels.FilterModels
 {
-    public class DriverFilteringModel : BaseFilterringModel
+    public class DriverFilteringModel : UserFilteringModel
     {
-        public string?[]? FullName { get; set; }  //ko check la tim tat ca
-        public string?[]? Email { get; set; }
-        public string?[]? PhoneNumber { get; set; }
+        [EnumValidation(typeof(BatchStatus))]
+        [AllowNull]
+        public string? BatchStatus { get; set; }
     }
 }

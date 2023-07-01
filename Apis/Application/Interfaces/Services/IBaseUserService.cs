@@ -1,4 +1,5 @@
-﻿using Application.ViewModels;
+﻿using Application.Commons;
+using Application.ViewModels;
 using Application.ViewModels.FilterModels;
 using Application.ViewModels.UserViewModels;
 using Domain.Entities;
@@ -13,11 +14,12 @@ namespace Application.Interfaces.Services
     public interface IBaseUserService
     {
         Task<bool> AddAsync(BaseUser batch);
-        Task<IEnumerable<BaseUser>> GetAllAsync();
+        Task<Pagination<BaseUser>> GetAllAsync(int pageIndex, int pageSize);
         Task<BaseUser?> GetByIdAsync(Guid entityId);
         Task<int> GetCountAsync();
-        Task<IEnumerable<BaseUser>> GetFilterAsync(DriverFilteringModel entity);
+        Task<Pagination<BaseUser>> GetFilterAsync(UserFilteringModel entity,int pageIndex,int pageSize);
         Task<UserLoginDTOResponse> LoginAsync(UserLoginDTO loginObject);
+        Task<UserToken> RefreshToken(string accessToken, string refreshToken);
         bool Remove(Guid entityId);
         bool Update(BaseUser entity);
     }

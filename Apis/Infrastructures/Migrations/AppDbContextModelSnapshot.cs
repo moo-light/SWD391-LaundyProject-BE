@@ -45,6 +45,9 @@ namespace Infrastructures.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<DateTime?>("ExpireTokenTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("FullName")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -64,6 +67,9 @@ namespace Infrastructures.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -89,6 +95,9 @@ namespace Infrastructures.Migrations
                     b.Property<DateTime?>("CreationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid?>("DeleteBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -107,9 +116,6 @@ namespace Infrastructures.Migrations
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("SessionId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
@@ -121,6 +127,49 @@ namespace Infrastructures.Migrations
                     b.HasIndex("DriverId");
 
                     b.ToTable("Batchs");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BatchOfBuilding", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<Guid?>("BatchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("BuildingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId");
+
+                    b.HasIndex("BuildingId");
+
+                    b.ToTable("BatchOfBuildings");
                 });
 
             modelBuilder.Entity("Domain.Entities.Building", b =>
@@ -254,9 +303,6 @@ namespace Infrastructures.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("OrderInBatchId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("StoreId")
                         .HasColumnType("uniqueidentifier");
 
@@ -304,6 +350,9 @@ namespace Infrastructures.Migrations
 
                     b.Property<Guid?>("ServiceId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Weight")
                         .HasPrecision(18, 2)
@@ -457,13 +506,6 @@ namespace Infrastructures.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<Guid?>("BatchId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("BuildingId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("CreatedBy")
@@ -478,8 +520,8 @@ namespace Infrastructures.Migrations
                     b.Property<DateTime?>("DeletionDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -490,14 +532,10 @@ namespace Infrastructures.Migrations
                     b.Property<DateTime?>("ModificationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("StartTime")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BatchId");
-
-                    b.HasIndex("BuildingId");
 
                     b.ToTable("Sessions");
                 });
@@ -566,6 +604,21 @@ namespace Infrastructures.Migrations
                         .HasForeignKey("DriverId");
 
                     b.Navigation("Driver");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BatchOfBuilding", b =>
+                {
+                    b.HasOne("Domain.Entities.Batch", "Batch")
+                        .WithMany("BatchOfBuildings")
+                        .HasForeignKey("BatchId");
+
+                    b.HasOne("Domain.Entities.Building", "Building")
+                        .WithMany("BatchOfBuildings")
+                        .HasForeignKey("BuildingId");
+
+                    b.Navigation("Batch");
+
+                    b.Navigation("Building");
                 });
 
             modelBuilder.Entity("Domain.Entities.Feedback", b =>
@@ -652,21 +705,6 @@ namespace Infrastructures.Migrations
                     b.Navigation("Store");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Session", b =>
-                {
-                    b.HasOne("Domain.Entities.Batch", "Batch")
-                        .WithMany("Sessions")
-                        .HasForeignKey("BatchId");
-
-                    b.HasOne("Domain.Entities.Building", "Building")
-                        .WithMany("Sessions")
-                        .HasForeignKey("BuildingId");
-
-                    b.Navigation("Batch");
-
-                    b.Navigation("Building");
-                });
-
             modelBuilder.Entity("Domain.Entities.Customer", b =>
                 {
                     b.HasOne("Domain.Entities.BaseUser", null)
@@ -687,16 +725,16 @@ namespace Infrastructures.Migrations
 
             modelBuilder.Entity("Domain.Entities.Batch", b =>
                 {
-                    b.Navigation("OrderInBatches");
+                    b.Navigation("BatchOfBuildings");
 
-                    b.Navigation("Sessions");
+                    b.Navigation("OrderInBatches");
                 });
 
             modelBuilder.Entity("Domain.Entities.Building", b =>
                 {
-                    b.Navigation("Orders");
+                    b.Navigation("BatchOfBuildings");
 
-                    b.Navigation("Sessions");
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("Domain.Entities.LaundryOrder", b =>

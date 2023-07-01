@@ -1,9 +1,9 @@
 ﻿using Application.Commons;
+using Application.ViewModels.FilterModels;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Utils;
 using Application.ViewModels;
-using Application.ViewModels.FilterModels;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -27,7 +27,7 @@ namespace Infrastructures.Repositories
             return await _dbSet.AsNoTracking().AnyAsync(x => x.Email == email);
         }
 
-        public IEnumerable<BaseUser> GetFilter(DriverFilteringModel? entity)
+        public IEnumerable<BaseUser> GetFilter(UserFilteringModel? entity)
         {
             entity ??= new();
             //Expression<Func<BaseUser, bool>> address = x => entity.Search.EmptyOrContainedIn(x.);
